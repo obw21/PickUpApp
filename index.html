@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PickUpApp — Coming Soon</title>
+  <meta name="description" content="Find a game, join a squad, play today. Football matchmaking for Sydney players." />
+  <meta property="og:title" content="PickUpApp — Coming Soon" />
+  <meta property="og:description" content="Find a game, join a squad, play today. Football matchmaking for Sydney players." />
+  <meta property="og:type" content="website" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100%;
+      background: #0a0f0d;
+    }
+
+    body {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .pu-wrap {
+      background: #0a0f0d;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+      padding: 0 0 80px;
+    }
+
+    .field-bg {
+      position: absolute;
+      inset: 0;
+      opacity: 0.07;
+      background-image:
+        repeating-linear-gradient(90deg, #fff 0 1px, transparent 1px 80px),
+        repeating-linear-gradient(0deg, #fff 0 1px, transparent 1px 80px);
+      pointer-events: none;
+    }
+
+    .field-circle {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 480px; height: 480px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.06);
+      pointer-events: none;
+    }
+
+    .hero {
+      position: relative;
+      z-index: 2;
+      padding: 64px 24px 0;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-block;
+      background: rgba(26,255,140,0.08);
+      border: 1px solid rgba(26,255,140,0.25);
+      color: #1aff8c;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 5px 14px;
+      border-radius: 100px;
+      margin-bottom: 28px;
+    }
+
+    h1 {
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: clamp(72px, 18vw, 120px);
+      font-weight: 700;
+      line-height: 0.92;
+      color: #fff;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+
+    h1 span { color: #1aff8c; }
+
+    .sub {
+      font-size: 16px;
+      color: rgba(255,255,255,0.45);
+      max-width: 320px;
+      margin: 22px auto 0;
+      line-height: 1.65;
+    }
+
+    .form-zone {
+      position: relative;
+      z-index: 2;
+      margin: 44px auto 0;
+      max-width: 460px;
+      padding: 0 20px;
+    }
+
+    .input-row {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .pu-input {
+      width: 100%;
+      height: 50px;
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 10px;
+      padding: 0 16px;
+      font-size: 14px;
+      color: #fff;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .pu-input::placeholder { color: rgba(255,255,255,0.28); }
+    .pu-input:focus { border-color: rgba(26,255,140,0.4); }
+    .pu-input.error { border-color: rgba(255,77,77,0.6); }
+
+    .pu-btn {
+      width: 100%;
+      height: 50px;
+      background: #1aff8c;
+      color: #0a0f0d;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: transform 0.15s, background 0.15s;
+    }
+
+    .pu-btn:hover { background: #2bffaa; transform: translateY(-1px); }
+    .pu-btn:active { transform: scale(0.97); }
+    .pu-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .success-msg {
+      display: none;
+      text-align: center;
+      color: #1aff8c;
+      font-size: 15px;
+      padding: 16px 0 0;
+      line-height: 1.6;
+    }
+
+    .error-msg {
+      display: none;
+      text-align: center;
+      color: rgba(255,100,100,0.85);
+      font-size: 13px;
+      padding: 10px 0 0;
+    }
+
+    .counter {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      margin: 36px auto 0;
+      padding: 0 20px;
+    }
+
+    .counter-inner {
+      display: inline-block;
+      background: rgba(26,255,140,0.07);
+      border: 1px solid rgba(26,255,140,0.18);
+      border-radius: 12px;
+      padding: 12px 28px;
+    }
+
+    .counter-num {
+      font-weight: 700;
+      font-size: 28px;
+      color: #1aff8c;
+    }
+
+    .counter-label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.38);
+      margin-left: 8px;
+    }
+
+    .levels-section {
+      position: relative;
+      z-index: 2;
+      max-width: 460px;
+      margin: 36px auto 0;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .level-card {
+      border-radius: 10px;
+      padding: 14px 16px;
+      background: rgba(26,255,140,0.06);
+      border: 1px solid rgba(26,255,140,0.18);
+    }
+
+    .level-title {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      color: #1aff8c;
+    }
+
+    .level-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .pill {
+      font-size: 12px;
+      padding: 4px 11px;
+      border-radius: 100px;
+      font-weight: 400;
+      background: rgba(26,255,140,0.1);
+      color: rgba(255,255,255,0.75);
+      border: 1px solid rgba(26,255,140,0.2);
+    }
+
+    .features {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      max-width: 460px;
+      margin: 12px auto 0;
+      padding: 0 20px;
+    }
+
+    .feat {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 10px;
+      padding: 14px 12px;
+      text-align: center;
+    }
+
+    .feat-icon {
+      font-size: 18px;
+      display: block;
+      margin-bottom: 6px;
+    }
+
+    .feat-text {
+      font-size: 11px;
+      color: rgba(255,255,255,0.4);
+      line-height: 1.4;
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 72px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="pu-wrap">
+    <div class="field-bg"></div>
+    <div class="field-circle"></div>
+
+    <div class="hero">
+      <span class="badge">Sydney · Coming Soon</span>
+      <h1>PICK<span>UP</span><br>APP</h1>
+      <p class="sub">Find a game, join a squad, play today. Football matchmaking for Sydney players.</p>
+    </div>
+
+    <div class="form-zone">
+      <div class="input-row" id="input-row">
+        <input class="pu-input" type="email" id="pu-email" placeholder="Email address" />
+        <input class="pu-input" type="tel" id="pu-phone" placeholder="Phone number (e.g. 0412 345 678)" />
+        <button class="pu-btn" id="pu-btn" onclick="handleSignup()">Notify me</button>
+      </div>
+      <div class="error-msg" id="error-msg"></div>
+      <div class="success-msg" id="success-msg">
+        You're on the list. We'll hit you when we launch. 🔥
+      </div>
+    </div>
+
+    <div class="counter">
+      <div class="counter-inner">
+        <span class="counter-num" id="counter">—</span>
+        <span class="counter-label">players already signed up</span>
+      </div>
+    </div>
+
+    <div class="levels-section">
+      <div class="level-card">
+        <div class="level-title">Competitive runs</div>
+        <div class="level-pills">
+          <span class="pill">Prems</span>
+          <span class="pill">NPL</span>
+          <span class="pill">A-League</span>
+          <span class="pill">Overseas Pros</span>
+        </div>
+      </div>
+      <div class="level-card">
+        <div class="level-title">Social games</div>
+        <div class="level-pills">
+          <span class="pill">All levels welcome</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="features">
+      <div class="feat">
+        <span class="feat-icon">📍</span>
+        <span class="feat-text">Games near you</span>
+      </div>
+      <div class="feat">
+        <span class="feat-icon">⚡</span>
+        <span class="feat-text">Skill matching</span>
+      </div>
+      <div class="feat">
+        <span class="feat-icon">🏆</span>
+        <span class="feat-text">Rankings & points</span>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDtKBxU_lYzViN68sq-bE-eS-NmW3wC0nU",
+      authDomain: "pickupapp-88836.firebaseapp.com",
+      projectId: "pickupapp-88836",
+      storageBucket: "pickupapp-88836.firebasestorage.app",
+      messagingSenderId: "931419561561",
+      appId: "1:931419561561:web:6785f4b733b5d5d8961b48"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const signupsRef = collection(db, "presignups");
+
+    async function loadCounter() {
+      try {
+        const snap = await getDocs(signupsRef);
+        document.getElementById('counter').textContent = snap.size;
+      } catch (e) {
+        document.getElementById('counter').textContent = '0';
+      }
+    }
+
+    window.handleSignup = async function () {
+      const emailEl = document.getElementById('pu-email');
+      const phoneEl = document.getElementById('pu-phone');
+      const errorEl = document.getElementById('error-msg');
+      const btn = document.getElementById('pu-btn');
+
+      const email = emailEl.value.trim().toLowerCase();
+      const phone = phoneEl.value.trim();
+
+      errorEl.style.display = 'none';
+
+      if (!email || !email.includes('@') || !email.includes('.')) {
+        emailEl.classList.add('error');
+        errorEl.textContent = 'Please enter a valid email address.';
+        errorEl.style.display = 'block';
+        setTimeout(() => emailEl.classList.remove('error'), 1500);
+        return;
+      }
+
+      if (!phone || phone.replace(/\D/g, '').length < 8) {
+        phoneEl.classList.add('error');
+        errorEl.textContent = 'Please enter a valid phone number.';
+        errorEl.style.display = 'block';
+        setTimeout(() => phoneEl.classList.remove('error'), 1500);
+        return;
+      }
+
+      btn.textContent = 'Signing you up...';
+      btn.disabled = true;
+
+      try {
+        const dupCheck = query(signupsRef, where("email", "==", email));
+        const dupSnap = await getDocs(dupCheck);
+
+        if (dupSnap.empty) {
+          await addDoc(signupsRef, {
+            email,
+            phone,
+            signedUpAt: new Date().toISOString(),
+            source: "presignup-page"
+          });
+        }
+
+        const snap = await getDocs(signupsRef);
+        document.getElementById('counter').textContent = snap.size;
+        document.getElementById('input-row').style.display = 'none';
+        errorEl.style.display = 'none';
+        document.getElementById('success-msg').style.display = 'block';
+
+      } catch (e) {
+        console.error(e);
+        errorEl.textContent = 'Something went wrong. Please try again.';
+        errorEl.style.display = 'block';
+        btn.textContent = 'Notify me';
+        btn.disabled = false;
+      }
+    };
+
+    document.getElementById('pu-email').addEventListener('keydown', e => { if (e.key === 'Enter') window.handleSignup(); });
+    document.getElementById('pu-phone').addEventListener('keydown', e => { if (e.key === 'Enter') window.handleSignup(); });
+
+    loadCounter();
+  </script>
+</body>
+</html>
